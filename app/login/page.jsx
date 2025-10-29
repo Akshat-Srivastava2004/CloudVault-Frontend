@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useReducer, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -8,21 +8,68 @@ import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Cloud, Mail, Lock, ArrowRight } from "lucide-react"
 
+const initialState = {
+  email: "",
+  password: "",
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "UPDATE_FIELD":
+      return { ...state, [action.field]: action.value }
+    case "RESET":
+      return initialState
+    default:
+      return state
+  }
+}
+
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [formData, dispatch] = useReducer(reducer, initialState)
   const [isLoading, setIsLoading] = useState(false)
+
+  const handleChange = (e) => {
+    dispatch({ type: "UPDATE_FIELD", field: e.target.name, value: e.target.value })
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
 
+    // 🔹 Step 1: Fake API request
+    try {
+      const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      })
+      const data = await response.json()
+      console.log("Fake API response:", data)
 
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/dashboard")
-    }, 1500)
+      // 🔹 Step 2: Check against localStorage
+      const storedUser = JSON.parse(localStorage.getItem("user"))
+
+      if (
+        storedUser &&
+        storedUser.email === formData.email &&
+        storedUser.password === formData.password
+      ) {
+        alert("Login successful!")
+        localStorage.setItem("isLoggedIn", "true")
+        router.push("/dashboard")
+      } else {
+        alert("Invalid email or password. Please try again.")
+      }
+    } catch (error) {
+      console.error("Error:", error)
+      alert("Something went wrong while logging in.")
+    }
+
+    setIsLoading(false)
   }
 
   return (
@@ -34,88 +81,55 @@ export default function LoginPage() {
             <span className="text-3xl font-bold text-foreground">CloudVault</span>
           </Link>
           <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back</h1>
-          <p className="text-muted-foreground">Sign in to your account to continue</p>
+          <p className="text-muted-foreground">Log in to access your account</p>
         </div>
 
         <Card className="p-8 bg-card border-border">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-foreground">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 bg-secondary border-border text-foreground"
-                  required
-                />
+            {["email", "password"].map((field) => (
+              <div key={field} className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  {field.charAt(0).toUpperCase() + field.slice(1)}
+                </label>
+                <div className="relative">
+                  {field === "email" && (
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  )}
+                  {field === "password" && (
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  )}
+                  <Input
+                    id={field}
+                    name={field}
+                    type={field}
+                    placeholder={field === "email" ? "you@example.com" : "••••••••"}
+                    value={formData[field]}
+                    onChange={handleChange}
+                    className="pl-10 bg-secondary border-border text-foreground"
+                    required
+                  />
+                </div>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-foreground">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-secondary border-border text-foreground"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="rounded border-border" />
-                <span className="text-sm text-muted-foreground">Remember me</span>
-              </label>
-              <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                Forgot password?
-              </Link>
-            </div>
+            ))}
 
             <Button
               type="submit"
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={isLoading}
             >
-              {isLoading ? (
-                "Signing in..."
-              ) : (
-                <>
-                  Sign In
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </>
-              )}
+              {isLoading ? "Signing in..." : <>Sign In <ArrowRight className="ml-2 h-4 w-4" /></>}
             </Button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
-              Don't have an account?{" "}
+              Don’t have an account?{" "}
               <Link href="/register" className="text-primary hover:underline font-medium">
-                Sign up
+                Create one
               </Link>
             </p>
           </div>
         </Card>
-
-        <div className="mt-6 text-center">
-          <Link href="/workspace/join" className="text-sm text-primary hover:underline">
-            Join a workspace instead →
-          </Link>
-        </div>
       </div>
     </div>
   )
