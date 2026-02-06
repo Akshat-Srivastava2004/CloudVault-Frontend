@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useRef } from "react"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -43,6 +44,19 @@ export default function DashboardPage() {
     { id: 5, name: "Assets.zip", type: "archive", size: "120 MB", date: "3 days ago", icon: Archive },
     { id: 6, name: "Background Music.mp3", type: "audio", size: "5.2 MB", date: "4 days ago", icon: Music },
   ]
+
+ const fileInputRef = useRef(null)
+
+const openFilePicker = () => {
+  fileInputRef.current.click()
+}
+
+const handleFileUpload = (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  console.log("Selected file:", file)
+}
+
 
   const stats = [
     { label: "Total Files", value: "156", icon: FileText },
@@ -130,10 +144,23 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Files
-            </Button>
+            <>
+  <input
+    ref={fileInputRef}
+    type="file"
+    hidden
+    onChange={handleFileUpload}
+  />
+
+  <Button
+    onClick={openFilePicker}
+    className="bg-primary text-primary-foreground hover:bg-primary/90"
+  >
+    <Upload className="h-4 w-4 mr-2" />
+    Upload Files
+  </Button>
+</>
+
             <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
               <Button
                 variant={viewMode === "grid" ? "default" : "ghost"}

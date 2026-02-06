@@ -5,6 +5,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
+import { useRef } from "react"
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import {
@@ -24,18 +26,41 @@ import {
   Send,
 } from "lucide-react"
 
+
+
 export default function CollaborativeWorkspacePage() {
+  const [shareLink, setShareLink] = useState("")
+
   const [searchQuery, setSearchQuery] = useState("")
   const [message, setMessage] = useState("")
   const [showPasskey, setShowPasskey] = useState(false)
 
   const workspacePasskey = "ABCD-1234-EFGH"
 
+  const fileInputRef = useRef(null)
+
+const openFilePicker = () => {
+  fileInputRef.current.click()
+}
+
+const generateShareLink = () => {
+  const randomId = Math.random().toString(36).substring(2, 10)
+  const link = `https://cloudvault.app/share/${randomId}`
+  setShareLink(link)
+}
+
+
+const handleFileUpload = (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  console.log("Selected file:", file)
+}
+
   const activeUsers = [
-    { id: 1, name: "John Doe", initials: "JD", color: "bg-primary", status: "online" },
-    { id: 2, name: "Sarah Smith", initials: "SS", color: "bg-chart-2", status: "online" },
-    { id: 3, name: "Mike Johnson", initials: "MJ", color: "bg-chart-3", status: "online" },
-    { id: 4, name: "Emily Brown", initials: "EB", color: "bg-chart-4", status: "away" },
+    { id: 1, name: "Akhand Pratap", initials: "AP", color: "bg-primary", status: "online" },
+    { id: 2, name: "Sambhav Gupta", initials: "SG", color: "bg-chart-2", status: "online" },
+    { id: 3, name: "Tushar Singh", initials: "TS", color: "bg-chart-3", status: "online" },
+    { id: 4, name: "Raj Singh", initials: "RS", color: "bg-chart-4", status: "away" },
   ]
 
   const sharedFiles = [
@@ -44,7 +69,7 @@ export default function CollaborativeWorkspacePage() {
       name: "Q4 Report.pdf",
       type: "pdf",
       size: "2.4 MB",
-      uploadedBy: "John Doe",
+      uploadedBy: "Akhand Pratap",
       time: "2 min ago",
       icon: FileText,
     },
@@ -53,7 +78,7 @@ export default function CollaborativeWorkspacePage() {
       name: "Design Assets.zip",
       type: "archive",
       size: "15.8 MB",
-      uploadedBy: "Sarah Smith",
+      uploadedBy: "Sambhav Gupta",
       time: "15 min ago",
       icon: ImageIcon,
     },
@@ -62,7 +87,7 @@ export default function CollaborativeWorkspacePage() {
       name: "Meeting Recording.mp4",
       type: "video",
       size: "45.6 MB",
-      uploadedBy: "Mike Johnson",
+      uploadedBy: "Tushar Singh",
       time: "1 hour ago",
       icon: Video,
     },
@@ -71,17 +96,17 @@ export default function CollaborativeWorkspacePage() {
       name: "Project Brief.docx",
       type: "document",
       size: "1.2 MB",
-      uploadedBy: "Emily Brown",
+      uploadedBy: "Raj Singh",
       time: "2 hours ago",
       icon: FileText,
     },
   ]
 
   const activities = [
-    { id: 1, user: "Sarah Smith", action: "uploaded", file: "Design Assets.zip", time: "15 min ago" },
-    { id: 2, user: "Mike Johnson", action: "edited", file: "Project Brief.docx", time: "45 min ago" },
-    { id: 3, user: "John Doe", action: "shared", file: "Q4 Report.pdf", time: "1 hour ago" },
-    { id: 4, user: "Emily Brown", action: "commented on", file: "Meeting Recording.mp4", time: "2 hours ago" },
+    { id: 1, user: "Sambhav Gupta", action: "uploaded", file: "Design Assets.zip", time: "15 min ago" },
+    { id: 2, user: "Akhand Pratap", action: "edited", file: "Project Brief.docx", time: "45 min ago" },
+    { id: 3, user: "Tushar Singh", action: "shared", file: "Q4 Report.pdf", time: "1 hour ago" },
+    { id: 4, user: "Raj Singh", action: "commented on", file: "Meeting Recording.mp4", time: "2 hours ago" },
   ]
 
   const copyPasskey = () => {
@@ -169,14 +194,36 @@ export default function CollaborativeWorkspacePage() {
                 <h3 className="text-lg font-semibold text-foreground">Quick Actions</h3>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 h-auto py-4">
-                  <Upload className="h-5 w-5 mr-2" />
-                  Upload Files
-                </Button>
-                <Button variant="outline" className="border-border text-foreground h-auto py-4 bg-transparent">
-                  <Share2 className="h-5 w-5 mr-2" />
-                  Share Link
-                </Button>
+                <>
+  <input
+    ref={fileInputRef}
+    type="file"
+    hidden
+    onChange={handleFileUpload}
+  />
+
+  <Button
+    onClick={openFilePicker}
+    className="bg-primary text-primary-foreground hover:bg-primary/90"
+  >
+    <Upload className="h-4 w-4 mr-2" />
+    Upload Files
+  </Button>
+</>
+
+               <Button
+  variant="outline"
+  onClick={generateShareLink}
+  className="border-border text-foreground h-auto py-4 bg-transparent"
+>
+  <Share2 className="h-5 w-5 mr-2" />
+  Share Link
+</Button>
+{shareLink && (
+  <div className="mt-3 p-3 bg-secondary rounded-lg text-sm break-all">
+    🔗 {shareLink}
+  </div>
+)}
               </div>
             </Card>
 
@@ -255,7 +302,7 @@ export default function CollaborativeWorkspacePage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Created By</p>
-                  <p className="font-semibold text-foreground">John Doe (Admin)</p>
+                  <p className="font-semibold text-foreground">Tushar Singh (Admin)</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Passkey</p>
@@ -305,7 +352,7 @@ export default function CollaborativeWorkspacePage() {
                   </Avatar>
                   <div className="flex-1">
                     <div className="bg-secondary p-3 rounded-lg">
-                      <p className="text-sm font-semibold text-foreground mb-1">Sarah Smith</p>
+                      <p className="text-sm font-semibold text-foreground mb-1">Sambhav Gupta</p>
                       <p className="text-sm text-foreground">Just uploaded the new design files!</p>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">15 min ago</p>
@@ -317,7 +364,7 @@ export default function CollaborativeWorkspacePage() {
                   </Avatar>
                   <div className="flex-1">
                     <div className="bg-secondary p-3 rounded-lg">
-                      <p className="text-sm font-semibold text-foreground mb-1">Mike Johnson</p>
+                      <p className="text-sm font-semibold text-foreground mb-1">Akash Yadav</p>
                       <p className="text-sm text-foreground">Thanks! Looking great 👍</p>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">10 min ago</p>

@@ -30,12 +30,12 @@ export default function WhiteboardApp() {
 
   const participants = useMemo(
     () => [
-      { id: "u1", name: "Alex Carter", role: "Admin", status: "online" },
+      { id: "u1", name: "Akash Yadav", role: "Admin", status: "online" },
       { id: "u2", name: "Riya Singh", role: "Editor", status: "online" },
-      { id: "u3", name: "Jordan Lee", role: "Viewer", status: "idle" },
+      { id: "u3", name: "Sanchit Yadav", role: "Viewer", status: "idle" },
       { id: "u4", name: "Maya Patel", role: "Editor", status: "online" },
       { id: "u5", name: "Omar Khan", role: "Viewer", status: "idle" },
-      { id: "u6", name: "Liam Chen", role: "Editor", status: "online" },
+      { id: "u6", name: "Gaurav Singh", role: "Editor", status: "online" },
     ],
     [],
   )

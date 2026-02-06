@@ -60,7 +60,7 @@ export default function RegisterPage() {
                   id="name"
                   name="name"
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="Enter your name"
                   value={formData.name}
                   onChange={handleChange}
                   className="pl-10 bg-secondary border-border text-foreground"
